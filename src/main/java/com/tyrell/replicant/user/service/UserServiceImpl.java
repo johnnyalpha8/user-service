@@ -1,8 +1,7 @@
 package com.tyrell.replicant.user.service;
 
-import com.tyrell.replicant.user.service.model.User;
 import com.google.gson.Gson;
-import org.apache.commons.validator.routines.EmailValidator;
+import com.tyrell.replicant.user.service.model.User;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoOperations;
@@ -45,12 +44,7 @@ public class UserServiceImpl implements IUserService {
     public void persistUser(JSONObject userJson) {
         Gson gson = new Gson();
         User user = gson.fromJson(userJson.toString(), User.class);
-        EmailValidator validator = EmailValidator.getInstance();
-        if (validator.isValid(user.getEmail())) {
-            mongoTemplate.save(user);
-        } else {
-            throw new UserException(user.getEmail() + " is not a valid email address");
-        }
+        mongoTemplate.save(user);
     }
 
     @Override
@@ -58,20 +52,11 @@ public class UserServiceImpl implements IUserService {
         Query searchQuery = new Query(Criteria.where(EMAIL_KEY).is(id));
         if (mongoTemplate.findOne(searchQuery, User.class) !=null) {
             Update update = new Update();
-            update.set(FIRST_NAME_KEY, user.getFirstName());
-            update.set(LAST_NAME_KEY, user.getLastName());
-            update.set(EMAIL_KEY, user.getEmail());
-            update.set(PHONE_NUMBER_KEY, user.getPhoneNumber());
-            update.set(JOB_TITLE_KEY, user.getJobTitle());
-            update.set(ADDRESS_LINE_1_KEY, user.getAddressLine1());
-            update.set(ADDRESS_LINE_2_KEY, user.getAddressLine2());
-            update.set(TOWN_KEY, user.getTown());
-            update.set(COUNTY_KEY, user.getCounty());
-            update.set(POST_CODE_KEY, user.getPostCode());
-            update.set(COUNTRY_KEY, user.getCountry());
+            update.set(FIRST_NAME_KEY, user.getSomeField());
+
             mongoTemplate.findAndModify(searchQuery, update, User.class);
         } else {
-            throw new UserException("user with id " + id + " not found");
+            //do something
         }
     }
 
@@ -81,7 +66,7 @@ public class UserServiceImpl implements IUserService {
         if (mongoTemplate.findOne(searchQuery, User.class) !=null) {
             mongoTemplate.remove(searchQuery, User.class);
         } else {
-            throw new UserException("user with id " + id + " not found");
+            //do something
         }
     }
 }
